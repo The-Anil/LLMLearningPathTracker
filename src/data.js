@@ -32,8 +32,8 @@ export const INIT = {
       ], tools:"langchain · llama-index · haystack · cohere rerank" },
     { id:"t1-6", name:"Vector databases", freq:5,
       topics:[
-        {t:"Pinecone index ops & namespaces",s:"learn"},{t:"Weaviate schema & vectorizer",s:"todo"},
-        {t:"pgvector with PostgreSQL",s:"todo"},{t:"Chroma for local dev",s:"learn"},
+        {t:"Pinecone index ops & namespaces",s:"todo"},{t:"Weaviate schema & vectorizer",s:"todo"},
+        {t:"pgvector with PostgreSQL",s:"todo"},{t:"Chroma for local dev",s:"have"},
         {t:"HNSW index tuning",s:"todo"},
       ], tools:"pinecone · weaviate-client · pgvector · chromadb" },
     { id:"t1-7", name:"Embeddings & semantic search", freq:4,
