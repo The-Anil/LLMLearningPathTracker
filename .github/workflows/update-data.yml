@@ -1,0 +1,42 @@
+name: Update Skill Data
+
+on:
+  workflow_dispatch:
+    inputs:
+      skills_json:
+        description: "Full skills JSON from the app Sync button"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Use PAT so the resulting push re-triggers the deploy workflow.
+          # GITHUB_TOKEN pushes are intentionally excluded from triggering
+          # other workflows to prevent loops.
+          token: ${{ secrets.GH_PAT }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Update src/data.js with new skill statuses
+        run: python scripts/update_data.py '${{ inputs.skills_json }}'
+
+      - name: Commit and push if data changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if ! git diff --quiet src/data.js; then
+            git add src/data.js
+            git commit -m "chore: sync skill statuses from app"
+            git push
+          else
+            echo "No changes to src/data.js — skipping commit."
+          fi
