@@ -337,8 +337,21 @@ async function waitForRunCompletion(pat, runId, timeoutMs = 300_000) {
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
+function useWindowWidth() {
+  const [width, setWidth] = useState(() => window.innerWidth);
+  useEffect(() => {
+    const handler = () => setWidth(window.innerWidth);
+    window.addEventListener("resize", handler);
+    return () => window.removeEventListener("resize", handler);
+  }, []);
+  return width;
+}
+
 // ─── Main App ─────────────────────────────────────────────────────────────────
 export default function App() {
+  const width = useWindowWidth();
+  const isMobile = width < 640;
+
   const [skills, setSkills] = useState(() => {
     try { return JSON.parse(localStorage.getItem("llm-tracker")) || INIT; }
     catch { return INIT; }
@@ -444,6 +457,8 @@ export default function App() {
   const overallPct = Math.round((totalHave / allTopics.length) * 100);
 
   const hasPat = !!localStorage.getItem("llm-tracker-pat");
+  const [selectedTier, setSelectedTier] = useState("T1");
+  const activeTier = TIER_CONFIG.find(t => t.id === selectedTier);
 
   return (
     <>
@@ -457,55 +472,71 @@ export default function App() {
       }}>
         {/* Header */}
         <div style={{
-          padding:"10px 16px", borderBottom:"1px solid rgba(255,255,255,0.07)",
-          display:"flex", alignItems:"center", gap:16, flexShrink:0,
+          padding: isMobile ? "8px 12px" : "10px 16px",
+          borderBottom:"1px solid rgba(255,255,255,0.07)",
+          display:"flex", flexWrap:"wrap", alignItems:"center",
+          gap: isMobile ? 8 : 16, flexShrink:0,
         }}>
-          <div style={{ flex:1 }}>
-            <div style={{ display:"flex", alignItems:"baseline", gap:10 }}>
+          {/* Title + stats row */}
+          <div style={{ flex:1, minWidth: isMobile ? "100%" : "auto" }}>
+            <div style={{ display:"flex", alignItems:"baseline", gap:8, flexWrap:"wrap" }}>
               <span style={{
-                fontSize:15, fontWeight:800,
+                fontSize: isMobile ? 13 : 15, fontWeight:800,
                 background:"linear-gradient(135deg,#60a5fa,#a78bfa,#34d399)",
                 WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent",
               }}>LLM Engineering Roadmap</span>
-              <span style={{ fontSize:10, color:"#475569" }}>
-                Skills tracker · {new Date().getFullYear()}
-              </span>
+              {!isMobile && (
+                <span style={{ fontSize:10, color:"#475569" }}>
+                  Skills tracker · {new Date().getFullYear()}
+                </span>
+              )}
+              {/* overall % inline on mobile */}
+              {isMobile && (
+                <span style={{ fontSize:12, fontWeight:700, color:"#a78bfa", marginLeft:"auto" }}>
+                  {overallPct}%
+                </span>
+              )}
             </div>
-            <div style={{ display:"flex", alignItems:"center", gap:10, marginTop:4 }}>
-              <div style={{ display:"flex", gap:8 }}>
+            <div style={{ display:"flex", alignItems:"center", gap:8, marginTop:3, flexWrap:"wrap" }}>
+              <div style={{ display:"flex", gap: isMobile ? 6 : 8 }}>
                 {[
-                  { label:`${totalHave} topics mastered`,  color:S.have.dot  },
-                  { label:`${totalLearn} learning`,        color:S.learn.dot },
-                  { label:`${allTopics.length-totalHave-totalLearn} to learn`, color:S.todo.dot },
+                  { label: isMobile ? `${totalHave} done`   : `${totalHave} topics mastered`,  color:S.have.dot  },
+                  { label: isMobile ? `${totalLearn} active` : `${totalLearn} learning`,        color:S.learn.dot },
+                  { label: isMobile ? `${allTopics.length-totalHave-totalLearn} left`
+                                    : `${allTopics.length-totalHave-totalLearn} to learn`,      color:S.todo.dot },
                 ].map(c => (
-                  <span key={c.label} style={{ fontSize:10, color:c.color }}>● {c.label}</span>
+                  <span key={c.label} style={{ fontSize: isMobile ? 9 : 10, color:c.color }}>● {c.label}</span>
                 ))}
               </div>
-              <div style={{ display:"flex", alignItems:"center", gap:6 }}>
-                <div style={{ width:100, height:4, borderRadius:2, background:"rgba(255,255,255,0.08)", overflow:"hidden" }}>
-                  <div style={{ height:"100%", borderRadius:2, width:`${overallPct}%`, transition:"width 0.4s",
-                    background:"linear-gradient(90deg,#3b82f6,#a855f7)" }}/>
+              {!isMobile && (
+                <div style={{ display:"flex", alignItems:"center", gap:6 }}>
+                  <div style={{ width:100, height:4, borderRadius:2, background:"rgba(255,255,255,0.08)", overflow:"hidden" }}>
+                    <div style={{ height:"100%", borderRadius:2, width:`${overallPct}%`, transition:"width 0.4s",
+                      background:"linear-gradient(90deg,#3b82f6,#a855f7)" }}/>
+                  </div>
+                  <span style={{ fontSize:11, fontWeight:700, color:"#a78bfa" }}>{overallPct}%</span>
                 </div>
-                <span style={{ fontSize:11, fontWeight:700, color:"#a78bfa" }}>{overallPct}%</span>
-              </div>
+              )}
             </div>
           </div>
 
-          {/* Legend */}
-          <div style={{ display:"flex", gap:10, alignItems:"center" }}>
-            {[S.have, S.learn, S.todo].map(st => (
-              <div key={st.label} style={{ display:"flex", alignItems:"center", gap:4 }}>
-                <span style={{ width:8, height:8, borderRadius:"50%", background:st.dot, display:"inline-block" }}/>
-                <span style={{ fontSize:10, color:"rgba(255,255,255,0.4)" }}>{st.label}</span>
-              </div>
-            ))}
-            <span style={{ fontSize:10, color:"rgba(255,255,255,0.2)", marginLeft:4 }}>click topic chips to cycle</span>
-          </div>
+          {/* Legend — desktop only */}
+          {!isMobile && (
+            <div style={{ display:"flex", gap:10, alignItems:"center" }}>
+              {[S.have, S.learn, S.todo].map(st => (
+                <div key={st.label} style={{ display:"flex", alignItems:"center", gap:4 }}>
+                  <span style={{ width:8, height:8, borderRadius:"50%", background:st.dot, display:"inline-block" }}/>
+                  <span style={{ fontSize:10, color:"rgba(255,255,255,0.4)" }}>{st.label}</span>
+                </div>
+              ))}
+              <span style={{ fontSize:10, color:"rgba(255,255,255,0.2)", marginLeft:4 }}>click topic chips to cycle</span>
+            </div>
+          )}
 
           {/* Action buttons */}
           <div style={{ display:"flex", gap:6, alignItems:"center", flexShrink:0 }}>
             <button onClick={() => exportMarkdown(skills)} style={{
-              padding:"6px 14px", borderRadius:8,
+              padding: isMobile ? "5px 10px" : "6px 14px", borderRadius:8,
               border:"1px solid rgba(255,255,255,0.15)",
               background:"rgba(255,255,255,0.05)", color:"#94a3b8",
               fontSize:11, fontWeight:600, cursor:"pointer",
@@ -514,10 +545,10 @@ export default function App() {
             }}
               onMouseEnter={e => { e.currentTarget.style.background="rgba(255,255,255,0.1)"; e.currentTarget.style.color="#e2e8f0"; }}
               onMouseLeave={e => { e.currentTarget.style.background="rgba(255,255,255,0.05)"; e.currentTarget.style.color="#94a3b8"; }}
-            >↓ Export .md</button>
+            >{isMobile ? "↓" : "↓ Export .md"}</button>
 
             <button onClick={handleSyncClick} style={{
-              padding:"6px 14px", borderRadius:8,
+              padding: isMobile ? "5px 10px" : "6px 14px", borderRadius:8,
               border:"1px solid rgba(59,130,246,0.4)",
               background:"rgba(59,130,246,0.12)", color:"#60a5fa",
               fontSize:11, fontWeight:600, cursor:"pointer",
@@ -527,7 +558,7 @@ export default function App() {
               onMouseEnter={e => { e.currentTarget.style.background="rgba(59,130,246,0.25)"; e.currentTarget.style.color="#93c5fd"; }}
               onMouseLeave={e => { e.currentTarget.style.background="rgba(59,130,246,0.12)"; e.currentTarget.style.color="#60a5fa"; }}
               title="Sync progress to GitHub repo (requires PAT)"
-            >⬆ Sync to GitHub</button>
+            >{isMobile ? "⬆" : "⬆ Sync to GitHub"}</button>
 
             {hasPat && (
               <button onClick={clearPat} title="Clear saved GitHub PAT" style={{
@@ -540,16 +571,58 @@ export default function App() {
           </div>
         </div>
 
-        {/* 6-column grid */}
+        {/* Mobile tier tab bar */}
+        {isMobile && (
+          <div style={{
+            display:"flex", gap:6, padding:"8px 12px",
+            borderBottom:"1px solid rgba(255,255,255,0.07)",
+            overflowX:"auto", flexShrink:0,
+          }}>
+            {TIER_CONFIG.map(tier => {
+              const isActive = selectedTier === tier.id;
+              return (
+                <button key={tier.id} onClick={() => setSelectedTier(tier.id)} style={{
+                  display:"flex", alignItems:"center", gap:5,
+                  padding:"5px 10px", borderRadius:20, flexShrink:0,
+                  border:`1px solid ${isActive ? tier.accent+"88" : "rgba(255,255,255,0.08)"}`,
+                  background: isActive ? tier.bg : "transparent",
+                  color: isActive ? tier.accent : "rgba(255,255,255,0.4)",
+                  fontSize:11, fontWeight: isActive ? 700 : 400, cursor:"pointer",
+                  transition:"all 0.15s",
+                }}>
+                  <span style={{
+                    width:18, height:18, borderRadius:"50%",
+                    background: isActive ? tier.accent : "rgba(255,255,255,0.1)",
+                    display:"flex", alignItems:"center", justifyContent:"center",
+                    fontSize:9, fontWeight:800,
+                    color: isActive ? "#0a0f1e" : "rgba(255,255,255,0.4)",
+                  }}>{tier.num}</span>
+                  {tier.label}
+                </button>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Grid: tabs on mobile, 6-col on desktop */}
         <div style={{
-          flex:1, display:"flex", gap:8, padding:"10px 12px",
+          flex:1, display:"flex", gap:8,
+          padding: isMobile ? "8px" : "10px 12px",
           overflow:"hidden", minHeight:0,
         }}>
-          {TIER_CONFIG.map(tier => (
-            <TierColumn key={tier.id} tier={tier} skills={skills[tier.id]}
-              onTopicChange={handleTopicChange}
-            />
-          ))}
+          {isMobile
+            ? <TierColumn
+                key={activeTier.id}
+                tier={activeTier}
+                skills={skills[activeTier.id]}
+                onTopicChange={handleTopicChange}
+              />
+            : TIER_CONFIG.map(tier => (
+                <TierColumn key={tier.id} tier={tier} skills={skills[tier.id]}
+                  onTopicChange={handleTopicChange}
+                />
+              ))
+          }
         </div>
       </div>
 
