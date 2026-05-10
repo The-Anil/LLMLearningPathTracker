@@ -28,36 +28,52 @@ Public visitors can view the live page and interact locally; only you (PAT holde
 
 ---
 
-## Architecture
+## Architecture & Sync Flow
 
+```mermaid
+%%{init: {'flowchart': {'curve': 'linear'}} }%%
+flowchart LR
+    subgraph Browser["Browser"]
+        direction TB
+        App["App.jsx\nReact · Vite"]
+        LS[("localStorage\nlive state")]
+        App <-->|"persist / load"| LS
+    end
+
+    subgraph GH["GitHub"]
+        direction TB
+        API["REST API"]
+
+        subgraph Actions["GitHub Actions"]
+            direction TB
+            UW["update-data.yml\nworkflow_dispatch"]
+            DW["deploy.yml\non push to main"]
+        end
+
+        subgraph Source["Repository"]
+            direction TB
+            PY["scripts/update_data.py"]
+            DJ["src/data.js\ndefault state"]
+        end
+
+        GHP[("gh-pages\nbranch")]
+
+        UW -->|"runs"| PY
+        PY -->|"regex-patch statuses"| DJ
+        DJ -->|"commit + push via GH_PAT"| DW
+        DW -->|"npm build · publish dist/"| GHP
+    end
+
+    Pages["GitHub Pages\npublic URL"]
+
+    App -->|"① POST dispatch · PAT auth"| API
+    API -->|"triggers"| UW
+    App -->|"② poll run status"| API
+    GHP -->|"serves"| Pages
+    Pages -->|"③ reload on success"| App
 ```
-Browser
-├── src/data.js          ← INIT: default skill states (source of truth in repo)
-├── src/App.jsx          ← UI, localStorage persistence, GitHub sync state machine
-└── localStorage         ← live per-browser state (overrides INIT on load)
 
-GitHub Actions
-├── update-data.yml      ← workflow_dispatch triggered by browser via GitHub API
-│                           receives skills JSON → scripts/update_data.py patches
-│                           src/data.js → commits using GH_PAT → triggers deploy
-└── deploy.yml           ← fires on push to main → npm build → peaceiris/actions-gh-pages
-
-scripts/update_data.py   ← regex-patches {t:"...",s:"..."} status values in data.js
-```
-
-### Sync flow
-
-```
-Click "Sync to GitHub"
-  │
-  ├─ POST /actions/workflows/update-data.yml/dispatches  (GitHub API, PAT auth)
-  │
-  ├─ Poll: update-data workflow → patches data.js → commits → push
-  │
-  ├─ Poll: deploy workflow → npm build → publishes dist/ to gh-pages branch
-  │
-  └─ window.location.reload()  ← page now reflects synced defaults
-```
+> **Numbered steps** show the sync triggered by clicking **⬆ Sync to GitHub** in the UI.
 
 ---
 
