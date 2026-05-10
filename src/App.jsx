@@ -314,7 +314,7 @@ async function pollForRun(pat, event, workflowName, afterIso, timeoutMs = 120_00
     );
     if (!res.ok) continue;
     const { workflow_runs } = await res.json();
-    const run = workflow_runs.find(r => r.name === workflowName && r.created_at >= afterIso);
+    const run = workflow_runs.find(r => r.name === workflowName && new Date(r.created_at) >= new Date(afterIso));
     if (run) return run.id;
   }
   throw new Error("Timed out waiting for workflow run to appear.");
@@ -387,12 +387,19 @@ export default function App() {
 
       setSyncState("polling-deploy");
       setSyncMsg("Waiting for GitHub Pages deploy…");
-      const deployRunId = await pollForRun(pat, "push", "Deploy to GitHub Pages", triggerTime);
-      if (cancelRef.current) return;
+      try {
+        // 45s timeout: if no deploy run appears, update-data.yml made no commit
+        // (data was unchanged). Reload is still correct — localStorage has the right state.
+        const deployRunId = await pollForRun(pat, "push", "Deploy to GitHub Pages", triggerTime, 45_000);
+        if (cancelRef.current) return;
 
-      const deployConclusion = await waitForRunCompletion(pat, deployRunId);
-      if (cancelRef.current) return;
-      if (deployConclusion !== "success") throw new Error(`Deploy workflow ended with: ${deployConclusion}`);
+        const deployConclusion = await waitForRunCompletion(pat, deployRunId);
+        if (cancelRef.current) return;
+        if (deployConclusion !== "success") throw new Error(`Deploy workflow ended with: ${deployConclusion}`);
+      } catch (err) {
+        if (!err.message.startsWith("Timed out waiting for workflow run")) throw err;
+        // No deploy triggered — data was already up to date. Fall through to reload.
+      }
 
       setSyncState("done");
       setSyncMsg("Skills saved to repo. Reloading page…");
