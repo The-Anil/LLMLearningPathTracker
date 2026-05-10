@@ -21,7 +21,7 @@ export const INIT = {
     { id:"t1-4", name:"LangGraph", freq:4,
       topics:[
         {t:"StateGraph nodes & edges",s:"have"},{t:"Conditional routing",s:"have"},
-        {t:"Checkpointers & persistence",s:"have"},{t:"Subgraphs & parallelism",s:"have"},
+        {t:"Checkpointers & persistence",s:"have"},{t:"Subgraphs & parallelism",s:"todo"},
         {t:"Human-in-the-loop patterns",s:"learn"},
       ], tools:"langgraph · StateGraph · MemorySaver" },
     { id:"t1-5", name:"RAG pipelines", freq:5,
