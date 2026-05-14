@@ -21,7 +21,7 @@ export const INIT = {
     { id:"t1-4", name:"LangGraph", freq:4,
       topics:[
         {t:"StateGraph nodes & edges",s:"have"},{t:"Conditional routing",s:"have"},
-        {t:"Checkpointers & persistence",s:"have"},{t:"Subgraphs & parallelism",s:"have"},
+        {t:"Checkpointers & persistence",s:"have"},{t:"Subgraphs & parallelism",s:"todo"},
         {t:"Human-in-the-loop patterns",s:"learn"},
       ], tools:"langgraph · StateGraph · MemorySaver" },
     { id:"t1-5", name:"RAG pipelines", freq:5,
@@ -84,9 +84,9 @@ export const INIT = {
   T3:[
     { id:"t3-1", name:"LangSmith / tracing", freq:5,
       topics:[
-        {t:"Project setup & API keys",s:"todo"},{t:"Run tracing & span hierarchy",s:"todo"},
+        {t:"Project setup & API keys",s:"have"},{t:"Run tracing & span hierarchy",s:"have"},
         {t:"Prompt versioning & datasets",s:"todo"},{t:"A/B evaluation in LangSmith",s:"todo"},
-        {t:"Custom feedback & annotation",s:"todo"},
+        {t:"Custom feedback & annotation",s:"have"},
       ], tools:"langsmith · phoenix (Arize) · langfuse · opentelemetry" },
     { id:"t3-2", name:"MLflow / Weights & Biases", freq:4,
       topics:[
@@ -97,7 +97,7 @@ export const INIT = {
     { id:"t3-3", name:"Model serving & deployment", freq:4,
       topics:[
         {t:"vLLM for high-throughput serving",s:"todo"},{t:"TGI (Text Generation Inference)",s:"todo"},
-        {t:"Ollama for local dev",s:"todo"},{t:"SageMaker real-time endpoints",s:"todo"},
+        {t:"Ollama for local dev",s:"have"},{t:"SageMaker real-time endpoints",s:"todo"},
         {t:"Batching & continuous batching",s:"todo"},
       ], tools:"vllm · tgi · ollama · sagemaker · vertex ai" },
     { id:"t3-4", name:"Kubernetes & Docker for ML", freq:4,
@@ -108,13 +108,13 @@ export const INIT = {
       ], tools:"docker · kubectl · helm · argocd · kubeflow" },
     { id:"t3-5", name:"CI/CD for ML pipelines", freq:3,
       topics:[
-        {t:"GitHub Actions for model deploy",s:"todo"},{t:"Automated eval gates in CI",s:"todo"},
+        {t:"GitHub Actions for model deploy",s:"have"},{t:"Automated eval gates in CI",s:"todo"},
         {t:"DVC for data versioning",s:"todo"},{t:"Model promotion workflows",s:"todo"},
         {t:"Rollback strategies",s:"todo"},
       ], tools:"github-actions · argocd · dvc · jenkins" },
     { id:"t3-6", name:"Observability stack", freq:3,
       topics:[
-        {t:"Prometheus metrics for LLM APIs",s:"todo"},{t:"Grafana dashboards",s:"todo"},
+        {t:"Prometheus metrics for LLM APIs",s:"todo"},{t:"Grafana dashboards",s:"have"},
         {t:"Distributed tracing (Jaeger)",s:"todo"},{t:"Latency percentiles & SLOs",s:"todo"},
         {t:"Alert rules for degradation",s:"todo"},
       ], tools:"prometheus · grafana · opentelemetry · jaeger" },
@@ -128,8 +128,8 @@ export const INIT = {
       ], tools:"transformers · trl · axolotl · unsloth" },
     { id:"t4-2", name:"LoRA / QLoRA / PEFT", freq:4,
       topics:[
-        {t:"LoRA rank & alpha selection",s:"learn"},{t:"QLoRA with 4-bit quantisation",s:"learn"},
-        {t:"Target modules (q_proj, v_proj)",s:"learn"},{t:"Adapter merging & export",s:"todo"},
+        {t:"LoRA rank & alpha selection",s:"todo"},{t:"QLoRA with 4-bit quantisation",s:"todo"},
+        {t:"Target modules (q_proj, v_proj)",s:"todo"},{t:"Adapter merging & export",s:"todo"},
         {t:"Memory efficiency benchmarks",s:"todo"},
       ], tools:"peft · bitsandbytes · unsloth · mergekit" },
     { id:"t4-3", name:"RLHF & DPO", freq:3,
@@ -211,7 +211,7 @@ export const INIT = {
     { id:"t6-4", name:"System design for AI scale", freq:4,
       topics:[
         {t:"Caching (Redis) for LLM responses",s:"have"},{t:"Async task queues (Celery, RQ)",s:"have"},
-        {t:"Kafka for event-driven AI",s:"have"},{t:"Latency budgeting & P99",s:"have"},
+        {t:"Kafka for event-driven AI",s:"todo"},{t:"Latency budgeting & P99",s:"todo"},
         {t:"Horizontal scaling patterns",s:"have"},
       ], tools:"redis · celery · kafka · rabbitmq · dramatiq" },
     { id:"t6-5", name:"NLP fundamentals", freq:3,
