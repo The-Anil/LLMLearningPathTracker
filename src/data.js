@@ -66,7 +66,7 @@ export const INIT = {
       topics:[
         {t:"Conversation window memory",s:"todo"},{t:"Vector long-term memory",s:"todo"},
         {t:"Episodic memory patterns",s:"todo"},{t:"mem0 architecture",s:"todo"},
-        {t:"LangGraph checkpointer",s:"todo"},
+        {t:"LangGraph checkpointer",s:"have"},
       ], tools:"mem0 · zep · langgraph checkpointer · redis" },
     { id:"t2-5", name:"Agent evaluation & testing", freq:4,
       topics:[
@@ -90,7 +90,7 @@ export const INIT = {
       ], tools:"langsmith · phoenix (Arize) · langfuse · opentelemetry" },
     { id:"t3-2", name:"MLflow / Weights & Biases", freq:4,
       topics:[
-        {t:"Experiment tracking runs",s:"todo"},{t:"Model registry & versioning",s:"todo"},
+        {t:"Experiment tracking runs",s:"have"},{t:"Model registry & versioning",s:"todo"},
         {t:"W&B prompts for LLMs",s:"todo"},{t:"Artifact logging",s:"todo"},
         {t:"Hyperparameter sweeps",s:"todo"},
       ], tools:"mlflow · wandb · clearml · neptune" },
